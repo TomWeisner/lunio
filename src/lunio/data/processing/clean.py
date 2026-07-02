@@ -2,16 +2,17 @@
 
 Run from the project root with:
 
-    poetry run python -m lunio.data.clean
+    poetry run python -m lunio.data.processing.clean
 """
 
 from pathlib import Path
 
 import pandas as pd
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "placement_data.xlsx"
-PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "clean"
+from lunio.paths import CLEAN_DATA_DIR, DATA_DIR
+
+RAW_DATA_PATH = DATA_DIR / "raw" / "placement_data.xlsx"
+PROCESSED_DATA_DIR = CLEAN_DATA_DIR
 
 SHEETS_TO_OUTPUTS = {
     "raw data": "raw_data.csv",

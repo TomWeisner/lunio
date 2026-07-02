@@ -32,3 +32,13 @@ pre-commit install
 ```bash
 nox -s <sessions>
 ```
+
+## Generate Data and Reports
+
+```bash
+poetry run python -m lunio.data.processing.clean
+poetry run python -m lunio.data.analysis.eda
+poetry run python -m lunio.models.rules_based.run_scoring
+```
+
+Outputs are written to `data/clean/` and `reports/`.
