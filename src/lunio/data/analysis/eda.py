@@ -45,7 +45,7 @@ def build_eda_summary() -> str:
 
     return "\n\n".join(
         [
-            "# Raw Data: Placement Safety EDA",
+            "# Full Data: Placement Safety EDA",
             "## Objective",
             (
                 "This EDA focuses on the advertiser, topic, channel, and "

@@ -1,7 +1,11 @@
 import pytest
 
-from lunio.models.extensions.llm import runner
-from lunio.models.extensions.llm.runner import _extract_response_text, run_llm_judge
+from lunio.models.extensions.llm import score_placement
+from lunio.models.extensions.llm.score_placement import (
+    _extract_response_text,
+    _format_openai_http_error,
+    run_llm_judge,
+)
 
 
 def test_extract_response_text_reads_first_output_text() -> None:
@@ -28,6 +32,19 @@ def test_run_llm_judge_requires_api_key(monkeypatch: pytest.MonkeyPatch) -> None
         run_llm_judge({"company_name": "Jet3 Holidays"})
 
 
+def test_format_openai_http_error_explains_insufficient_quota() -> None:
+    details = (
+        '{"error": {"message": "You exceeded your current quota.", '
+        '"code": "insufficient_quota"}}'
+    )
+
+    message = _format_openai_http_error(429, details)
+
+    assert "insufficient quota" in message
+    assert "billing enabled" in message
+    assert "available credits" in message
+
+
 def test_main_reads_placement_file_and_prints_decision(
     tmp_path,
     capsys: pytest.CaptureFixture[str],
@@ -41,15 +58,15 @@ def test_main_reads_placement_file_and_prints_decision(
 
     def fake_run_llm_judge(placement, *, model):
         assert placement["company_name"] == "Jet3 Holidays"
-        assert model == runner.DEFAULT_OPENAI_MODEL
+        assert model == score_placement.DEFAULT_OPENAI_MODEL
         return {"decision": "review"}
 
-    monkeypatch.setattr(runner, "run_llm_judge", fake_run_llm_judge)
+    monkeypatch.setattr(score_placement, "run_llm_judge", fake_run_llm_judge)
     monkeypatch.setattr(
         "sys.argv",
-        ["runner", str(placement_path)],
+        ["score_placement", str(placement_path)],
     )
 
-    runner.main()
+    score_placement.main()
 
     assert '"decision": "review"' in capsys.readouterr().out

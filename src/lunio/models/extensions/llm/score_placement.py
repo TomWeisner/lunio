@@ -1,8 +1,9 @@
-"""OpenAI runner for the optional LLM placement safety judge.
+"""Score one placement with the optional LLM placement safety judge.
 
 Run from the project root with:
 
-    OPENAI_API_KEY=... poetry run python -m lunio.models.extensions.llm.runner \
+    OPENAI_API_KEY=... poetry run python -m \
+        lunio.models.extensions.llm.score_placement \
         placement.json
 """
 
@@ -67,8 +68,28 @@ def _post_openai_json(payload: dict[str, Any], *, api_key: str) -> dict[str, Any
             return json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
         details = exc.read().decode("utf-8", errors="replace")
-        msg = f"OpenAI API request failed with status {exc.code}: {details}"
+        msg = _format_openai_http_error(exc.code, details)
         raise RuntimeError(msg) from exc
+
+
+def _format_openai_http_error(status_code: int, details: str) -> str:
+    try:
+        error_body = json.loads(details)
+    except json.JSONDecodeError:
+        return f"OpenAI API request failed with status {status_code}: {details}"
+
+    error_details = error_body.get("error", {})
+    error_code = error_details.get("code")
+    error_message = error_details.get("message", details)
+
+    if status_code == 429 and error_code == "insufficient_quota":
+        return (
+            "OpenAI API request failed because the account has insufficient quota. "
+            "Check that the API key belongs to an account with billing enabled and "
+            f"available credits. OpenAI said: {error_message}"
+        )
+
+    return f"OpenAI API request failed with status {status_code}: {details}"
 
 
 def _extract_response_text(response_body: dict[str, Any]) -> str:
