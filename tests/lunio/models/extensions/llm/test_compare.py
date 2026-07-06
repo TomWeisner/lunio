@@ -81,12 +81,15 @@ def test_compare_llm_with_rules_writes_comparison_and_html_report(tmp_path) -> N
     assert 'id="commentary"' in html_report
     assert "Productionising" in html_report
     assert 'id="raw-predictions"' in html_report
+    assert "Rules -&gt; LLM" in html_report
     assert "Prediction distribution by confidence" in html_report
     assert 'aria-label="Confidence matrix"' in html_report
     assert 'class="comparison-like-table"' in html_report
     assert 'class="expand-button"' in html_report
     assert 'id="topic-filter"' in html_report
     assert 'id="match-filter"' in html_report
+    assert 'class="decision-pair-value decision-unsafe">unsafe</span>' in html_report
+    assert 'class="decision-pair-value decision-review">review</span>' in html_report
     assert 'href="https://example.com/flight-disaster"' in html_report
     assert "Needs review." in html_report
     assert "Rules confidence" in html_report

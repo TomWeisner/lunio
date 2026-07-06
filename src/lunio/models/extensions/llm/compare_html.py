@@ -425,6 +425,20 @@ def build_html_report(
     .decision-safe {{ color: var(--safe); }}
     .decision-review {{ color: var(--review); }}
     .decision-unsafe {{ color: var(--unsafe); }}
+    .decision-pair {{
+      align-items: center;
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-right: 10px;
+    }}
+    .decision-pair-value {{
+      font-weight: 700;
+    }}
+    .decision-arrow,
+    .decision-count {{
+      color: var(--muted);
+    }}
     .toolbar {{
       align-items: center;
       display: flex;
@@ -440,7 +454,7 @@ def build_html_report(
   <main>
     <h1>LLM vs Rules Report</h1>
     <p class="subtitle">
-      Interactive comparison of rule-based and LLM placement safety decisions.
+      Comparison of rule-based and LLM placement safety decisions.
     </p>
 
     {_contents_list()}
@@ -512,48 +526,48 @@ def build_html_report(
       <h2>Commentary</h2>
       <div class="commentary-copy">
         <p>
-          Accuracy is not the same thing as agreement with the rules engine. This
-          report is most useful as a comparison of system behaviour, not as a final
-          measure of policy correctness, so the next step should be to build an
-          adjudicated set that tells us which judgments are actually right.
+          Accuracy of models is not the same thing as agreement between models.
+          This report is most useful as a comparison of model behaviour,
+          not as a measure of model ability. A useful next step would be to build a
+          labelled  dataset that allows us to determine which judgments are
+          actually correct.
         </p>
         <p>
-          The LLM seems most useful where it can disambiguate brittle lexical
-          triggers, such as words like &quot;war&quot; appearing in an obviously benign
-          sports context. At the same time, there is still a lot of overlap where
-          both systems agree on clear safe and clear unsafe cases, which is a good
-          reminder that the rules model still has value as a fast, cheap first-pass
-          check.
+          The LLM appears to have some useful ability to outmaneuver the rigid nature
+          of the rules model, such as with words like &quot;war&quot; appearing in a sports
+          context which is actually safe. At the same time, there is still a lot of
+          overlap where both systems agree on clear safe and clear unsafe cases. This
+          motivates use of a rules model as a fast and cheap first-pass.
         </p>
         <p>
-          The cost of mistakes is also asymmetric. A direct unsafe-to-safe miss
-          matters much more than a safe-to-review escalation, so the evaluation
-          should not optimise for raw agreement alone. It should pay more attention
-          to the high-cost error types and treat review-boundary disagreements
-          differently from genuinely dangerous misses.
+          The cost of mistakes are asymmetric. An unsafe page classed as safe
+          matters much more than a safe page classed as unsafe, so the evaluation
+          of any solution against a labelled datasetshould not optimise for the
+          metric of accuracy. It should pay more attention to high-cost error
+          types. Decision routing for boundary cases may also be asymmetric,
+          depending on the side of the boundary.
         </p>
         <p>
-          Some of the LLM's more cautious calls also look like evidence problems
-          rather than model failures. Missing titles, sparse page metadata, and
-          limited surrounding context make it harder to classify UGC or ambiguous
-          placements confidently, so improving metadata retrieval would likely help
-          before any major model change.
+          Some of the LLM's more cautious calls also look like they were
+          caused by a lack of evidence. For example, missing titles, sparse page metadata,
+          and/or limited surrounding context. This makes it harder to classify content
+          confidently. Improving metadata retrieval would likely help before any modelling changes.
         </p>
         <div class="commentary-subsection">
           <h3>Productionising</h3>
           <p>
-            In production, a hybrid design is likely to work better than a clean
-            replacement of rules with an LLM. Deterministic rules can stay as the
-            first layer for obvious hard-unsafe or clearly safe cases, while the
-            LLM is used for context-heavy borderline placements and for cases where
-            the evidence is too weak for automation alone. Decisions should be
+            In production, a hybrid system is likely to work better than an LLM alone.
+            Deterministic rules can stay as a
+            first layer for obvious unsafe/safe cases, with the
+            LLM used for context-heavy borderline placements and for cases where
+            the evidence is too weak for automation alone. Decisions could be
             cached at the page level so the same URL does not trigger repeated
-            model calls, and ambiguous cases should first try to pull in richer
+            model calls. Ambiguous cases could first try to pull in richer
             page context such as titles, snippets, or other metadata before paying
-            for inference. Higher-value or higher-risk placements can then escalate
-            to a stronger model when a cheap pass is still uncertain, and the final
-            decision should be stored with its evidence so it can be reused,
-            audited, and refreshed when policy changes.
+            for inference. Higher-value or higher-risk placements can escalate to a
+            stronger model when a cheap pass is still uncertain, and the final
+            decision should be stored with its evidence so it can be reused and
+            reviewed.
           </p>
         </div>
       </div>
@@ -595,9 +609,6 @@ def build_html_report(
           </select>
         </label>
       </div>
-      <p class="muted">
-        Raw comparison CSV: {html.escape(str(comparison_output_path))}
-      </p>
       <div class="table-wrap">
         <table id="comparison-table" class="comparison-like-table">
           {_comparison_colgroup()}
@@ -1127,7 +1138,7 @@ def _topic_discrepancy_counts(topic_counts: pd.DataFrame) -> str:
         f"<td>{int(row.rows):,}</td>"
         f"<td>{int(row.llm_safer):,}</td>"
         f"<td>{int(row.llm_stricter):,}</td>"
-        f"<td>{html.escape(str(row.decision_pairs))}</td>"
+        f"<td>{_decision_pairs_html(str(row.decision_pairs))}</td>"
         "</tr>"
         for row in topic_counts.itertuples(index=False)
     )
@@ -1143,7 +1154,7 @@ def _topic_discrepancy_counts(topic_counts: pd.DataFrame) -> str:
         <th>Rows</th>
         <th>LLM safer</th>
         <th>LLM stricter</th>
-        <th>Decision pairs</th>
+        <th>Rules -&gt; LLM</th>
       </tr>
     </thead>
     <tbody>
@@ -1340,3 +1351,46 @@ def _decision_pill(decision: str) -> str:
         character for character in decision.lower() if character.isalnum()
     )
     return f'<span class="pill {css_class}">{html.escape(decision)}</span>'
+
+
+def _decision_pairs_html(value: str) -> str:
+    if not value or value == "nan":
+        return ""
+
+    rendered_pairs = []
+    for pair in value.split(", "):
+        decision_text, separator, count_text = pair.rpartition(" (")
+        if not separator:
+            rendered_pairs.append(html.escape(pair))
+            continue
+
+        rules_decision, arrow, llm_decision = decision_text.partition(" -> ")
+        if not arrow:
+            rendered_pairs.append(html.escape(pair))
+            continue
+
+        rendered_pairs.append(
+            "".join(
+                [
+                    '<span class="decision-pair">',
+                    _decision_pair_value_html(rules_decision),
+                    '<span class="decision-arrow">-&gt;</span>',
+                    _decision_pair_value_html(llm_decision),
+                    '<span class="decision-count">',
+                    html.escape(f"({count_text}"),
+                    "</span>",
+                    "</span>",
+                ]
+            )
+        )
+
+    return ", ".join(rendered_pairs)
+
+
+def _decision_pair_value_html(decision: str) -> str:
+    css_class = "decision-" + "".join(
+        character for character in decision.lower() if character.isalnum()
+    )
+    return (
+        f'<span class="decision-pair-value {css_class}">{html.escape(decision)}</span>'
+    )
