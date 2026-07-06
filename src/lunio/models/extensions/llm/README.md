@@ -104,31 +104,12 @@ OPENAI_API_KEY=... poetry run python -m lunio.models.extensions.llm.score_placem
 
 The command prints the model's parsed JSON decision to the terminal.
 
-## Scaling for Real-Time Traffic Decisions
+## Comparison report
 
-This implementation is not designed to sit directly in the page-load path for
-real-time traffic classification. Each row makes a synchronous API call to an
-external LLM provider, so latency, rate limits, provider availability, and cost
-would all affect the customer experience if this were used while a page is
-loading. For fast ad or web traffic decisions, the serving path should normally
-use deterministic rules, cached features, and precomputed risk signals so it can
-return in milliseconds.
+The rule-based and LLM-based models have now been compared. You can read the
+results in the HTML report at:
 
-A more scalable production shape would keep the LLM out of the hot path:
+```text
+reports/llm_vs_rules_report.html
+```
 
-- Run offline crawlers or scrapers to fetch page content for known domains,
-  URLs, channels, and topics.
-- Summarise scraped pages offline with an LLM and store compact safety signals,
-  categories, and rationales keyed by URL, domain, advertiser, or topic.
-- Refresh those summaries on a schedule or when a URL/topic changes, rather than
-  during a customer request.
-- Use the real-time service to look up cached safety decisions and fall back to
-  fast rules when there is no cached LLM signal.
-- Send uncertain, new, or high-value placements to an asynchronous review queue
-  for LLM scoring after the request has completed.
-
-That architecture keeps page loading fast while still using the LLM where it is
-most useful: handling ambiguous content, creating richer explanations, and
-improving policy coverage over time. The rule-based scorer can remain the
-low-latency default, with LLM outputs used as offline enrichment, QA, monitoring,
-or a source of candidates for new deterministic rules.

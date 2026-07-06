@@ -4,18 +4,20 @@ Lunio coding challenge.
 
 ## Setup
 
+### Installs
+
 ```bash
 poetry env use python3.13
 poetry install
 ```
 
-## Enable the virtual environment
+### Enable the virtual environment
 
 ```bash
 source .venv/bin/activate
 ```
 
-## Enable pre-commit
+### Enable pre-commit
 
 This project already includes `pre-commit`, so after `poetry install` you can enable the Git hook with:
 
@@ -23,23 +25,37 @@ This project already includes `pre-commit`, so after `poetry install` you can en
 pre-commit install
 ```
 
-## Checks
+### Checks
 
 ```bash
 nox -s <sessions>
 ```
+## Use
 
-## Generate Data and Reports
+### Generate Data
 
 ```bash
 poetry run python -m lunio.data.processing.clean
+```
+Outputs are written to `data/clean`.
+
+### EDA
+
+```bash
 poetry run python -m lunio.data.analysis.eda
+```
+Outputs are written to `reports/`.
+
+### Rules model
+
+```bash
 poetry run python -m lunio.models.rules_based.run_scoring
 ```
 
-Outputs are written to `data/clean/` and `reports/`.
+To see the architecture of the scoring, see
+[`src/lunio/models/rules_based/README.md`](src/lunio/models/rules_based/README.md).
 
-## LLM Extension
+### LLM Extension
 
-For the optional LLM-based placement safety judge, see
+For more info about the LLM-based placement safety judge, see
 [`src/lunio/models/extensions/llm/README.md`](src/lunio/models/extensions/llm/README.md).
