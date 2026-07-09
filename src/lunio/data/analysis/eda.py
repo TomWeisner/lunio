@@ -10,7 +10,7 @@ import pandas as pd
 from lunio.paths import CLEAN_DATA_DIR, REPORTS_DIR
 
 FULL_DATA_PATH = CLEAN_DATA_DIR / "full_data.csv"
-EDA_OUTPUT_PATH = REPORTS_DIR / "eda_raw_data_summary.md"
+EDA_OUTPUT_PATH = REPORTS_DIR / "eda_full_data_summary.md"
 
 
 def build_eda_summary() -> str:

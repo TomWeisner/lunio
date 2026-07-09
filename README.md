@@ -59,3 +59,9 @@ To see the architecture of the scoring, see
 
 For more info about the LLM-based placement safety judge, see
 [`src/lunio/models/extensions/llm/README.md`](src/lunio/models/extensions/llm/README.md).
+
+## Outputs
+
+- [`reports/deck_base_plan.md`](reports/deck_base_plan.md): base content for a slide deck.
+- [`reports/eda_full_data_summary.md`](reports/eda_full_data_summary.md): eda report.
+- [`reports/llm_vs_rules_report.html`](reports/llm_vs_rules_report.html): report summarising rule-vs-LLM predictions.
