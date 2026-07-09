@@ -7,7 +7,7 @@ from urllib.parse import unquote, urlparse
 
 import pandas as pd
 
-from lunio.models.rules_based.policies import (
+from lunio.models.policies import (
     UNIVERSAL_REVIEW_CATEGORIES,
     UNIVERSAL_UNSAFE_CATEGORIES,
     get_policy,
