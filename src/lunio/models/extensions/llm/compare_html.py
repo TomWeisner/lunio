@@ -516,8 +516,8 @@ def build_html_report(
             "humour and opinionated content as potentially risky. Outside of those "
             "cases, it is more likely to recognise when content is not actually "
             "risky, which suggests some of the remaining disagreement may come from "
-            "rules firing on surface-level signals that the LLM model can interpret more "
-            "contextually."
+            "rules firing on surface-level signals that the LLM model can "
+            "interpret more contextually."
         )
     }
     </section>
@@ -534,10 +534,11 @@ def build_html_report(
         </p>
         <p>
           The LLM appears to have some useful ability to outmaneuver the rigid nature
-          of the rules model, such as with words like &quot;war&quot; appearing in a sports
-          context which is actually safe. At the same time, there is still a lot of
-          overlap where both systems agree on clear safe and clear unsafe cases. This
-          motivates use of a rules model as a fast and cheap first-pass.
+          of the rules model, such as with words like &quot;war&quot; appearing in a
+          sports context which is actually safe. At the same time, there is still
+          a lot of overlap where both systems agree on clear safe and clear
+          unsafe cases. This motivates use of a rules model as a fast and cheap
+          first-pass.
         </p>
         <p>
           The cost of mistakes are asymmetric. An unsafe page classed as safe
@@ -549,9 +550,10 @@ def build_html_report(
         </p>
         <p>
           Some of the LLM's more cautious calls also look like they were
-          caused by a lack of evidence. For example, missing titles, sparse page metadata,
-          and/or limited surrounding context. This makes it harder to classify content
-          confidently. Improving metadata retrieval would likely help before any modelling changes.
+          caused by a lack of evidence. For example, missing titles, sparse page
+          metadata, and/or limited surrounding context. This makes it harder to
+          classify content confidently. Improving metadata retrieval would likely
+          help before any modelling changes.
         </p>
         <div class="commentary-subsection">
           <h3>Productionising</h3>
@@ -563,10 +565,10 @@ def build_html_report(
             the evidence is too weak for automation alone. Decisions could be
             cached at the page level so the same URL does not trigger repeated
             model calls. Ambiguous cases could first try to pull in richer
-            page context such as titles, snippets, or other metadata. Higher-value or higher-risk placements can escalate to a
-            stronger model when a cheap pass is still uncertain, and the final
-            decision should be stored with its evidence so it can be reused and
-            reviewed.
+            page context such as titles, snippets, or other metadata.
+            Higher-value or higher-risk placements can escalate to a stronger
+            model when a cheap pass is still uncertain, and the final decision
+            should be stored with its evidence so it can be reused and reviewed.
           </p>
         </div>
       </div>
