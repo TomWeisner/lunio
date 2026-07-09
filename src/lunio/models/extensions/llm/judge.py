@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from lunio.models.rules_based.policies import get_policy
+from lunio.models.policies import get_policy
 
 SAFETY_JUDGE_JSON_SCHEMA = {
     "type": "object",
@@ -28,6 +28,8 @@ def build_llm_judge_prompt(placement: dict[str, Any]) -> str:
     """Build a constrained prompt for an LLM safety judge."""
 
     company_name = str(placement["company_name"])
+
+    # Get the advertiser's policy to include in the prompt
     policy = get_policy(company_name)
 
     return f"""You are judging advertiser-specific ad placement safety.

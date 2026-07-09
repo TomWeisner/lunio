@@ -21,7 +21,8 @@ flowchart TD
 ## Main Modules
 
 - `classifier.py`: rule-based scoring logic and dataframe scoring helper.
-- `policies.py`: universal and advertiser-specific risk category policies.
+- `../policies.py`: shared universal and advertiser-specific risk category
+  policies used by the rules scorer and the LLM judge.
 - `run_scoring.py`: script entry point for generating scored report outputs.
 
 ## Scoring Flow
@@ -33,7 +34,8 @@ dataframe.
 
 `score_placement` handles one placement at a time:
 
-1. It reads `company_name` and loads the advertiser's policy from `policies.py`.
+1. It reads `company_name` and loads the advertiser's policy from
+   `lunio.models.policies`.
 2. It calls `_build_text_signals` to collect the text that can be inspected.
 3. It calls `_detect_risk_categories` to map keyword matches onto configured
    risk categories.
