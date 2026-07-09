@@ -516,7 +516,7 @@ def build_html_report(
             "humour and opinionated content as potentially risky. Outside of those "
             "cases, it is more likely to recognise when content is not actually "
             "risky, which suggests some of the remaining disagreement may come from "
-            "rules firing on surface-level signals that the model can interpret more "
+            "rules firing on surface-level signals that the LLM model can interpret more "
             "contextually."
         )
     }
@@ -563,8 +563,7 @@ def build_html_report(
             the evidence is too weak for automation alone. Decisions could be
             cached at the page level so the same URL does not trigger repeated
             model calls. Ambiguous cases could first try to pull in richer
-            page context such as titles, snippets, or other metadata before paying
-            for inference. Higher-value or higher-risk placements can escalate to a
+            page context such as titles, snippets, or other metadata. Higher-value or higher-risk placements can escalate to a
             stronger model when a cheap pass is still uncertain, and the final
             decision should be stored with its evidence so it can be reused and
             reviewed.
